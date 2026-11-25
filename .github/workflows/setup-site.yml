@@ -1,0 +1,71 @@
+# Run from the Actions tab: "Set up SEO for a site" → Run workflow → type the domain.
+# Issues for existing accounts / manual steps land in THIS repo (or the one you set in issues-repo).
+name: Set up SEO for a site
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: Domain (example.com)
+        required: true
+      site-url:
+        description: Canonical origin (optional, e.g. https://www.example.com/)
+        required: false
+      dns-provider:
+        description: DNS provider
+        type: choice
+        options: [cloudflare, vercel, manual]
+        default: cloudflare
+      sitemaps:
+        description: Sitemap URLs, comma-separated (optional)
+        required: false
+      issues-repo:
+        description: owner/repo for follow-up issues (default this repo; other repos need SEO_ISSUES_TOKEN)
+        required: false
+      mode:
+        description: plan = dry run
+        type: choice
+        options: [setup, plan]
+        default: setup
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: seo-${{ inputs.domain }}
+
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - id: seo
+        uses: ./
+        with:
+          domain: ${{ inputs.domain }}
+          site-url: ${{ inputs.site-url }}
+          dns-provider: ${{ inputs.dns-provider }}
+          sitemaps: ${{ inputs.sitemaps }}
+          mode: ${{ inputs.mode }}
+          issues-repo: ${{ inputs.issues-repo }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SEO_ISSUES_TOKEN: ${{ secrets.SEO_ISSUES_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GA_ACCOUNT_ID: ${{ vars.GA_ACCOUNT_ID }}
+          SEO_OWNER_EMAILS: ${{ vars.SEO_OWNER_EMAILS }}
+          BING_API_KEY: ${{ secrets.BING_API_KEY }}
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.mode == 'setup'
+        with:
+          name: seo-output-${{ inputs.domain }}
+          path: seo-output.json

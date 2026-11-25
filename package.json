@@ -1,0 +1,34 @@
+{
+  "name": "seo-bootstrap",
+  "version": "0.1.0",
+  "description": "One command (or one GitHub Action) to register a new website with Google Search Console, Google Analytics 4, Bing Webmaster Tools and IndexNow, including DNS verification.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "seo-bootstrap": "src/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "node src/cli.js setup",
+    "status": "node src/cli.js status",
+    "auth:google": "node scripts/google-auth.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "seo",
+    "search-console",
+    "google-analytics",
+    "ga4",
+    "bing-webmaster",
+    "indexnow",
+    "github-action",
+    "dns-verification"
+  ],
+  "files": [
+    "src",
+    "scripts",
+    "action.yml"
+  ]
+}

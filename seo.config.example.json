@@ -1,0 +1,23 @@
+{
+  "domain": "example.com",
+  "siteUrl": "https://example.com/",
+  "sitemaps": ["https://example.com/sitemap.xml"],
+  "dns": {
+    "provider": "cloudflare",
+    "waitSeconds": 300
+  },
+  "owners": [],
+  "preflight": { "enabled": true },
+  "googleSearchConsole": { "enabled": true },
+  "googleAnalytics": {
+    "enabled": true,
+    "accountId": "",
+    "propertyName": "example.com",
+    "timeZone": "Asia/Kolkata",
+    "currencyCode": "INR",
+    "industryCategory": "OTHER",
+    "dataRetention": "FOURTEEN_MONTHS"
+  },
+  "bing": { "enabled": true },
+  "indexNow": { "enabled": true, "keyFileDir": "public" }
+}

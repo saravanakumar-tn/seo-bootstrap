@@ -1,0 +1,76 @@
+name: SEO Bootstrap
+description: Register a website with Google Search Console, GA4, Bing Webmaster Tools and IndexNow; open GitHub issues for anything that needs a human.
+author: saravanakumar-tn
+branding:
+  icon: search
+  color: blue
+
+inputs:
+  domain:
+    description: Domain, e.g. example.com (or set it in the config file)
+    required: false
+  site-url:
+    description: Canonical origin, e.g. https://www.example.com/ (default https://<domain>/)
+    required: false
+  config:
+    description: Path to a seo.config.json in your repo
+    required: false
+  dns-provider:
+    description: cloudflare | vercel | manual
+    required: false
+  sitemaps:
+    description: Comma-separated sitemap URLs (default <site-url>/sitemap.xml)
+    required: false
+  only:
+    description: Comma-separated steps to run (preflight,gsc,ga4,bing,indexnow)
+    required: false
+  open-issues:
+    description: Open GitHub issues for existing accounts / manual steps / failures
+    default: 'true'
+  issues-repo:
+    description: 'owner/repo for issues (default: the repo running the workflow)'
+    required: false
+  mode:
+    description: setup | plan
+    default: setup
+
+outputs:
+  measurement_id:
+    description: GA4 measurement ID (G-XXXX)
+    value: ${{ steps.run.outputs.measurement_id }}
+  indexnow_key:
+    description: IndexNow key in use
+    value: ${{ steps.run.outputs.indexnow_key }}
+  issues:
+    description: Comma-separated URLs of issues opened or updated
+    value: ${{ steps.run.outputs.issues }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - id: run
+      shell: bash
+      env:
+        INPUT_DOMAIN: ${{ inputs.domain }}
+        INPUT_SITE_URL: ${{ inputs.site-url }}
+        INPUT_CONFIG: ${{ inputs.config }}
+        INPUT_DNS: ${{ inputs.dns-provider }}
+        INPUT_SITEMAPS: ${{ inputs.sitemaps }}
+        INPUT_ONLY: ${{ inputs.only }}
+        INPUT_ISSUES: ${{ inputs.open-issues }}
+        INPUT_ISSUES_REPO: ${{ inputs.issues-repo }}
+        INPUT_MODE: ${{ inputs.mode }}
+      run: |
+        args=("$INPUT_MODE")
+        [ -n "$INPUT_DOMAIN" ]      && args+=(--domain "$INPUT_DOMAIN")
+        [ -n "$INPUT_SITE_URL" ]    && args+=(--site-url "$INPUT_SITE_URL")
+        [ -n "$INPUT_CONFIG" ]      && args+=(--config "$INPUT_CONFIG")
+        [ -n "$INPUT_DNS" ]         && args+=(--dns "$INPUT_DNS")
+        [ -n "$INPUT_SITEMAPS" ]    && args+=(--sitemap "$INPUT_SITEMAPS")
+        [ -n "$INPUT_ONLY" ]        && args+=(--only "$INPUT_ONLY")
+        [ -n "$INPUT_ISSUES_REPO" ] && args+=(--issues-repo "$INPUT_ISSUES_REPO")
+        [ "$INPUT_ISSUES" != "true" ] && args+=(--no-issues)
+        node "${{ github.action_path }}/src/cli.js" "${args[@]}"

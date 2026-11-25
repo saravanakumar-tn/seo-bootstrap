@@ -1,0 +1,5 @@
+node_modules/
+seo-output.json
+*.key.json
+service-account*.json
+.env
