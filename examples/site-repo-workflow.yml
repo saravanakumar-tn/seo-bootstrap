@@ -4,6 +4,12 @@ name: SEO setup
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: plan = dry run, setup = do it
+        type: choice
+        options: [plan, setup]
+        default: plan
   schedule:
     - cron: '17 3 * * 1' # Mondays 03:17 UTC
 
@@ -20,6 +26,7 @@ jobs:
         uses: saravanakumar-tn/seo-bootstrap@v0
         with:
           config: seo.config.json # see seo.config.example.json in the seo-bootstrap repo
+          mode: ${{ inputs.mode || 'setup' }} # scheduled runs use setup
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
